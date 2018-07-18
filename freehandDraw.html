@@ -44,11 +44,17 @@
         <div class="col-xs-10">
             <div style="width:512px;height:512px;position:relative;display:inline-block;color:white;" oncontextmenu="return false" class="cornerstone-enabled-image" unselectable="on" onselectstart="return false;" onmousedown="return false;">
                 <div id="dicomImage" style="width:512px;height:512px;top:0px;left:0px; position:absolute;" tabindex="0">
-                <canvas width="512" style="width: 512px; height: 512px;" height="512"></canvas></div>
+                <!-- <canvas width="512" style="width: 512px; height: 512px;" height="512"></canvas></div> -->
             </div>
         </div>
     </div>
     <div class="row">
+
+        <input type="file" id="myFile" onchange="uploadJSON()">
+
+        <button id="downloadContainer" onclick="downloadJSON()">Download JSON</div>
+
+
         <div class="col-xs-12">
             <h3>Functionality</h3>
             <h4>Polygon Mode</h4>
@@ -102,6 +108,50 @@
       shift: false,
       alt: false
     };
+
+    //UPLOAD JSON
+    function uploadJSON(){
+        var files = document.getElementById('myFile').files;
+        console.log(files);
+        if (files.length <= 0) {
+            return false;
+        }
+        
+        var fr = new FileReader();
+        
+        fr.onload = function(e) { 
+            var result = JSON.parse(e.target.result);
+            // var formatted = JSON.stringify(result, null, 2);
+            console.log(result)
+            //CLEAR TOOLS on loading new json
+            var toolStateManager = cornerstoneTools.getElementToolStateManager(element);
+            // Note that this only works on ImageId-specific tool state managers (for now)
+            toolStateManager.clear(element);
+            cornerstone.updateImage(element);
+
+            cornerstoneTools.addToolState(element, 'freehand', result);
+        }
+        
+        fr.readAsText(files.item(0));
+    };
+
+    function downloadJSON(){
+        // DOWNLOAD JSON
+        var ROIData = cornerstoneTools.getToolState(element, 'freehand');
+
+        downloadObjectAsJson(ROIData.data[0], "data");
+
+    }
+
+    function downloadObjectAsJson(exportObj, exportName){
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href",     dataStr);
+        downloadAnchorNode.setAttribute("download", exportName + ".json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
 
     function onKeyDown(e) {
       const data = e.detail;
@@ -178,6 +228,8 @@
         // Enable all tools we want to use with this element
         cornerstoneTools.freehand.activate(element, 1);
 
+        cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
+
         activate("activate");
         element.focus();
 
@@ -222,6 +274,47 @@
             element.focus();
         });
     });
+
+    function getExampleRoi1() {
+      const exampleRoiJSON =
+      '{"visible":true,"active":false,"invalidated":true,"handles":[{"x":158.25,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":153.25,"y":91.19999694824219}]},'
+      + '{"x":153.25,"y":91.19999694824219,"highlight":true,"active":false,"lines":[{"x":147,"y":92.19999694824219}]},'
+      + '{"x":147,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":141.5,"y":94.69999694824219}]},'
+      + '{"x":141.5,"y":94.69999694824219,"highlight":true,"active":false,"lines":[{"x":135.5,"y":99.69999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":104.19999694824219}]}]},'
+      + '{"x":135.5,"y":99.69999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":104.19999694824219}]},'
+      + '{"x":133.75,"y":104.19999694824219,"highlight":true,"active":false,"lines":[{"x":131.75,"y":109.19999694824219}]},'
+      + '{"x":131.75,"y":109.19999694824219,"highlight":true,"active":true,"lines":[{"x":130.75,"y":114.19999694824219}]},'
+      + '{"x":130.75,"y":114.19999694824219,"highlight":true,"active":false,"lines":[{"x":130.75,"y":119.19999694824219}]},'
+      + '{"x":130.75,"y":119.19999694824219,"highlight":true,"active":false,"lines":[{"x":131.25,"y":124.19999694824219}]},'
+      + '{"x":131.25,"y":124.19999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":128.6999969482422}]},'
+      + '{"x":133.75,"y":128.6999969482422,"highlight":true,"active":false,"lines":[{"x":136.25,"y":133.1999969482422}]},'
+      + '{"x":136.25,"y":133.1999969482422,"highlight":true,"active":false,"lines":[{"x":138.75,"y":137.6999969482422}]},'
+      + '{"x":138.75,"y":137.6999969482422,"highlight":true,"active":false,"lines":[{"x":142.75,"y":141.6999969482422}]},'
+      + '{"x":142.75,"y":141.6999969482422,"highlight":true,"active":false,"lines":[{"x":146.75,"y":145.1999969482422}]},'
+      + '{"x":146.75,"y":145.1999969482422,"highlight":true,"active":false,"lines":[{"x":151.5,"y":147.1999969482422}]},'
+      + '{"x":151.5,"y":147.1999969482422,"highlight":true,"active":false,"lines":[{"x":157,"y":146.6999969482422}]},'
+      + '{"x":157,"y":146.6999969482422,"highlight":true,"active":false,"lines":[{"x":160.75,"y":145.6999969482422}]},'
+      + '{"x":160.75,"y":145.6999969482422,"highlight":true,"active":false,"lines":[{"x":164.25,"y":141.6999969482422}]},'
+      + '{"x":164.25,"y":141.6999969482422,"highlight":true,"active":false,"lines":[{"x":167.25,"y":137.6999969482422}]},'
+      + '{"x":167.25,"y":137.6999969482422,"highlight":true,"active":false,"lines":[{"x":169.75,"y":132.6999969482422}]},'
+      + '{"x":169.75,"y":132.6999969482422,"highlight":true,"active":false,"lines":[{"x":172.25,"y":128.1999969482422}]},'
+      + '{"x":172.25,"y":128.1999969482422,"highlight":true,"active":false,"lines":[{"x":174.75,"y":123.69999694824219}]},'
+      + '{"x":174.75,"y":123.69999694824219,"highlight":true,"active":false,"lines":[{"x":176.25,"y":118.69999694824219}]},'
+      + '{"x":176.25,"y":118.69999694824219,"highlight":true,"active":false,"lines":[{"x":176.25,"y":113.69999694824219}]},'
+      + '{"x":176.25,"y":113.69999694824219,"highlight":true,"active":false,"lines":[{"x":174.25,"y":108.69999694824219}]},'
+      + '{"x":174.25,"y":108.69999694824219,"highlight":true,"active":false,"lines":[{"x":172.25,"y":103.69999694824219}]},'
+      + '{"x":172.25,"y":103.69999694824219,"highlight":true,"active":false,"lines":[{"x":169.75,"y":99.19999694824219}]},'
+      + '{"x":169.75,"y":99.19999694824219,"highlight":true,"active":false,"lines":[{"x":168,"y":95.69999694824219}]},'
+      + '{"x":168,"y":95.69999694824219,"highlight":true,"active":false,"lines":[{"x":163.5,"y":92.69999694824219}]},'
+      + '{"x":163.5,"y":92.69999694824219,"highlight":true,"active":false,"lines":[{"x":158.25,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":153.25,"y":91.19999694824219}]}]}],'
+      + '"textBox":{"active":false,"hasMoved":false,"movesIndependently":false,"drawnIndependently":true,"allowedOutsideImage":true,"hasBoundingBox":true,"x":176.25,"y":124.7249984741211,'
+      + '"boundingBox":{"width":142.5,"height":65,"left":352.5,"top":216.9499969482422}},"canComplete":false,"highlight":false,'
+      + '"polyBoundingBox":{"left":130.75,"top":91.19999694824219,"width":45.5,"height":67.05000305175781},'
+      + '"meanStdDev":{"count":1856,"mean":148.21713362068965,"variance":568.0859348873164,"stdDev":23.834553381326792},"area":1540.7742500305176}';
+
+      return JSON.parse(exampleRoiJSON);
+    }
+
 
 
 

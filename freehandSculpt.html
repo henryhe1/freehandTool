@@ -110,6 +110,7 @@
       alt: false
     };
 
+    // initially load the DICOM image
     initLoad(element)
 
     function initLoad(element){
@@ -138,7 +139,7 @@
             // cornerstoneTools.addToolState(element, 'freehand', getExampleRoi2());
             // cornerstoneTools.addToolState(element, 'freehand', getExampleRoi3(myFile));
 
-            
+            // activate Button
             activate("activate");
             cornerstoneTools.freehandSculpter.activate(element, 1);
             element.focus();
@@ -251,8 +252,12 @@
         // Enable all tools we want to use with this element
         // cornerstoneTools.freehand.enable(element);
             // Load 2 example tools from JSON.
+        cornerstoneTools.freehandSculpter.disable(element);
+        element.focus();
+        cornerstoneTools.freehandSculpter.activate(element, 1);
         cornerstoneTools.addToolState(element, 'freehand', ROI);
 
+        element.focus();
     }
         
 
