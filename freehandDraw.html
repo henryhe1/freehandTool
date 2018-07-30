@@ -14,68 +14,79 @@
 <div class="container">
     <div class="page-header">
         <h1>
-            Freehand drawing
+            Segmentation Tool
         </h1>
         <p>
-            This page demonstrates how to use the freehand drawing tool
+            Imagepro - FASTR 
         </p>
-        <a href="https://rawgit.com/cornerstonejs/cornerstoneTools/master/examples/index.html">Go back to the Examples page</a>
     </div>
 
     <br>
 
     <div class="row">
+        <input type="file" id="myFile" class="list-group-item" onchange="uploadJSON()">
+
+        <button class="list-group-item" id="downloadContainer" onclick="downloadJSON()">Download JSON</div>
+    </div>
+
+    <br >
+
+    <div class ="row">
+        <br >
+
         <div class="col-xs-2">
             <ul class="list-group">
-                <a id="disable" class="list-group-item">Disable</a>
-                <a id="enable" class="list-group-item">Enable</a>
-                <a id="activate" class="list-group-item active">Activate</a>
+                <a id="sculptTool" class="list-group-item">Sculpt Tool</a>
+                <a id="drawTool" class="list-group-item active">Draw Tool</a>
                 <a id="deactivate" class="list-group-item">Deactivate</a>
             </ul>
             <br>
             <ul class="list-group">
                 <a id="clearToolData" class="list-group-item">Clear drawing</a>
+                <a id="resetData" class="list-group-item">Reset data</a>
             </ul>
             <ul class="col-xs-12 col-sm-2">
                 <div id="keyPressed">Holding:</div>
             </ul>
             <br>
         </div>
-        <div class="col-xs-10">
+        <div class="col-xs-8">
             <div style="width:512px;height:512px;position:relative;display:inline-block;color:white;" oncontextmenu="return false" class="cornerstone-enabled-image" unselectable="on" onselectstart="return false;" onmousedown="return false;">
                 <div id="dicomImage" style="width:512px;height:512px;top:0px;left:0px; position:absolute;" tabindex="0">
                 <!-- <canvas width="512" style="width: 512px; height: 512px;" height="512"></canvas></div> -->
             </div>
         </div>
+        <div class="col-xs-4">
+                <h3>Functionality</h3>
+                <h4>Polygon Mode</h4>
+                <ul>
+                    <li>Click to draw a point.</li>
+                    <li>Keep clicking to draw a shape.</li>
+                    <li>End the shape by connecting it to the origin node without crossing any lines.</li>
+                </ul>
+                <h4>Pencil Mode</h4>
+                <ul>
+                    <li>Shift-click to start drawing.</li>
+                    <li>Move the mouse to draw the shape.</li>
+                    <li>End the shape by mousing over the origin and clicking.</li>
+                </ul>
+                <h4>Edit</h4>
+                <ul>
+                    <li>Holding ctrl will display all the handles of each polygon.</li>
+                    <li>Ctrl-click on a handle to delete it.</li>
+                    <li>Ctrl-click on a line to insert a new handle.</li>
+                    <li>Release ctrl and drag a handle to move it.</li>
+                </ul>
+
+
+        </div>
+        </div>
     </div>
     <div class="row">
 
-        <input type="file" id="myFile" onchange="uploadJSON()">
-
-        <button id="downloadContainer" onclick="downloadJSON()">Download JSON</div>
-
-
+        
         <div class="col-xs-12">
-            <h3>Functionality</h3>
-            <h4>Polygon Mode</h4>
-            <ul>
-                <li>Click to draw a point.</li>
-                <li>Keep clicking to draw a shape.</li>
-                <li>End the shape by connecting it to the origin node without crossing any lines.</li>
-            </ul>
-            <h4>Pencil Mode</h4>
-            <ul>
-                <li>Shift-click to start drawing.</li>
-                <li>Move the mouse to draw the shape.</li>
-                <li>End the shape by mousing over the origin and clicking.</li>
-            </ul>
-            <h4>Edit</h4>
-            <ul>
-                <li>Holding ctrl will display all the handles of each polygon.</li>
-                <li>Ctrl-click on a handle to delete it.</li>
-                <li>Ctrl-click on a line to insert a new handle.</li>
-                <li>Release ctrl and drag a handle to move it.</li>
-            </ul>
+            
         </div>
     </div>
 
@@ -90,8 +101,19 @@
 <script src="./freehandDraw_files/cornerstoneTools.js"></script>
 <script>window.cornerstoneTools || document.write('<script src="https://unpkg.com/cornerstone-tools">\x3C/script>')</script><script src="./freehandDraw_files/cornerstone-tools"></script>
 
+<script src="./freehand.js"></script>
+<script src="./freehandSculpter.js"></script>
+
 <!-- include special code for these examples which provides images -->
 <script src="./freehandDraw_files/exampleImageLoader.js"></script>
+
+<!-- include RequireJS, a module loader in Node JS -->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+
 
 <script>
     var element = document.getElementById('dicomImage');
@@ -227,12 +249,12 @@
 
         // Enable all tools we want to use with this element
         cornerstoneTools.freehand.activate(element, 1);
+        cornerstoneTools.freehandSculpter.activate(element, 1);
 
         cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
 
-        activate("activate");
+        activate("drawTool");
         element.focus();
-
 
         function activate(id)
         {
@@ -241,27 +263,26 @@
         }
 
         // Tool button event handlers that set the new active tool
-        document.getElementById('disable').addEventListener('click', function() {
-            activate("disable");
+        document.getElementById('sculptTool').addEventListener('click', function() {
+            activate("sculptTool");
             cornerstoneTools.freehand.disable(element);
+            cornerstoneTools.freehandSculpter.enable(element);
+            cornerstoneTools.freehandSculpter.activate(element, 1);
             element.focus();
             return false;
         });
-        document.getElementById('enable').addEventListener('click', function() {
-            activate("enable");
+        document.getElementById('drawTool').addEventListener('click', function() {
+            activate("drawTool");
+            cornerstoneTools.freehandSculpter.disable(element);
             cornerstoneTools.freehand.enable(element);
-            element.focus();
-            return false;
-        });
-        document.getElementById('activate').addEventListener('click', function() {
-            activate("activate");
-            cornerstoneTools.freehand.activate(element, 1);
+            cornerstoneTools.freehand.activate(element,1);
             element.focus();
             return false;
         });
         document.getElementById('deactivate').addEventListener('click', function() {
             activate("deactivate");
-            cornerstoneTools.freehand.deactivate(element, 1);
+            cornerstoneTools.freehand.disable(element, 1);
+            cornerstoneTools.freehandSculpter.disable(element,1);
             element.focus();
             return false;
         });
@@ -273,6 +294,16 @@
             cornerstone.updateImage(element);
             element.focus();
         });
+
+        document.getElementById('resetData').addEventListener('click', function() {
+            var toolStateManager = cornerstoneTools.getElementToolStateManager(element);
+            // Note that this only works on ImageId-specific tool state managers (for now)
+            toolStateManager.clear(element);
+            cornerstone.updateImage(element);
+            cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
+            element.focus();
+        });
+
     });
 
     function getExampleRoi1() {
