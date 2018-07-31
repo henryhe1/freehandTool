@@ -17,6 +17,7 @@
             Segmentation Tool
         </h1>
         <p>
+            A combination of the Freehand and FreehandSculpter CornerstoneTools, with JSON saving/loading.
             Imagepro - FASTR 
         </p>
     </div>
@@ -58,7 +59,7 @@
             </div>
         </div>
 
-        <div class="col-xs-3 order-last">
+        <div class="col-xs-3 order-last" id = "help-text">
             <h3>Draw Tool</h3>
             <h4>Points Mode</h4>
             <ul>
@@ -100,6 +101,11 @@
 <!-- include special code for these examples which provides images -->
 <script src="./freehandDraw_files/exampleImageLoader.js"></script>
 
+<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoader.js"></script>
+<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderCodecs.js"></script>
+<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderWebWorker.js"></script>
+
+
 <!-- include RequireJS, a module loader in Node JS -->
 <script
   src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -109,8 +115,20 @@
 
 
 <script>
+
+    //  var WADOconfig = {
+    //     webWorkerPath : 'https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderWebWorker.js',
+    //     taskConfiguration: {
+    //         'decodeTask' : {
+    //             codecsPath: 'https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderCodecs.js'
+    //         }
+    //     }
+    // };
+    // cornerstoneWADOImageLoader.webWorkerManager.initialize(WADOconfig);
+
     var element = document.getElementById('dicomImage');
-    var imageId = 'example://1';
+    // var imageId = 'wadouri:http://142.76.29.57:8042/instances/4cd957bb-99c14b65-2beb9c67-9c7fd9c4-785b4dc2/file';
+    var imageId = 'example://heart'
 
     const keyCodes = {
         SHIFT: 16,
@@ -247,6 +265,9 @@
         cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
 
         activate("drawTool");
+        cornerstoneTools.freehandSculpter.disable(element);
+        cornerstoneTools.freehand.enable(element);
+        cornerstoneTools.freehand.activate(element,1);
         element.focus();
 
         function activate(id)
@@ -262,6 +283,29 @@
             cornerstoneTools.freehandSculpter.enable(element);
             cornerstoneTools.freehandSculpter.activate(element, 1);
             element.focus();
+
+            document.getElementById('help-text').innerHTML = 
+            '<h3>Sculpt Tool</h3> \
+            <h4>Select Mode</h4> \
+            <ul> \
+                <li>Ctrl-click near a region of interest to select it for editing.</li> \
+                <li>The region will become highlighted to show that it has been selected.</li> \
+            </ul> \
+            <h4>Edit Mode</h4> \
+            <ul> \
+                <li>Hold down left click near the selected tool to begin editing.</li> \
+                <ul> \
+                    <li>The closer to the contour the mouse is, the smaller the tool will be.</li> \
+                    <li>The tool can push from either the inside or the outside.</li> \
+                </ul> \
+                <li>With the mouse held down, drag the tool to push the ROI.</li> \
+                <ul> \
+                    <li>New points will be created and deleted as needed.</li> \
+                </ul> \
+                <li>Release the mouse to complete the edit.</li> \
+            </ul> \
+            Protip: You may find you wish to make rough edits with a large tool, before making fine adjustments with a finer tool.</li>' ; 
+
             return false;
         });
         document.getElementById('drawTool').addEventListener('click', function() {
@@ -270,6 +314,25 @@
             cornerstoneTools.freehand.enable(element);
             cornerstoneTools.freehand.activate(element,1);
             element.focus();
+            document.getElementById('help-text').innerHTML = '<h3>Draw Tool</h3> \
+            <h4>Points Mode</h4> \
+            <ul> \
+                <li>Click to draw a point, and keep clicking to draw a shape.</li> \
+                <li>End the shape by connecting it to the origin node without crossing any lines.</li> \
+            </ul> \
+            <h4>Pencil Mode</h4> \
+            <ul> \
+                <li>Shift-click to start drawing.</li> \
+                <li>Move the mouse to draw the shape.</li> \
+                <li>End the shape by mousing over the origin and clicking.</li> \
+            </ul> \
+            <h4>Edit</h4> \
+            <ul> \
+                <li>Holding ctrl will display all the handles of each polygon.</li> \
+                <li>Ctrl-click on a handle to delete it.</li> \
+                <li>Ctrl-click on a line to insert a new handle.</li> \
+                <li>Release ctrl and drag a handle to move it.</li> \
+            </ul> ' ;
             return false;
         });
         document.getElementById('deactivate').addEventListener('click', function() {
