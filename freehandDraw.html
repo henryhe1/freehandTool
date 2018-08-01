@@ -101,9 +101,10 @@
 <!-- include special code for these examples which provides images -->
 <script src="./freehandDraw_files/exampleImageLoader.js"></script>
 
-<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoader.js"></script>
-<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderCodecs.js"></script>
-<script src="https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderWebWorker.js"></script>
+<script src="./cornerstoneWADOImageLoader.js"></script>
+<script src="./cornerstoneWADOImageLoaderCodecs.js"></script>
+<script src="./cornerstoneWADOImageLoaderWebWorker.js"></script>
+<script src="./dicomParser.js"></script>
 
 
 <!-- include RequireJS, a module loader in Node JS -->
@@ -115,20 +116,26 @@
 
 
 <script>
+    cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+    cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
-    //  var WADOconfig = {
-    //     webWorkerPath : 'https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderWebWorker.js',
-    //     taskConfiguration: {
-    //         'decodeTask' : {
-    //             codecsPath: 'https://unpkg.com/cornerstone-wado-image-loader@2.1.4/dist/cornerstoneWADOImageLoaderCodecs.js'
-    //         }
-    //     }
-    // };
-    // cornerstoneWADOImageLoader.webWorkerManager.initialize(WADOconfig);
+
+    var WADOconfig = {
+        webWorkerPath : './cornerstoneWADOImageLoaderWebWorker.js',
+        taskConfiguration: {
+            'decodeTask' : {
+                // not really sure how this path works.. but it does  
+                codecsPath: '../../../freehandTool/cornerstoneWADOImageLoaderCodecs.js'
+            }
+        }
+    };
+
+    // cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
+    window.cornerstoneWADOImageLoader.webWorkerManager.initialize(WADOconfig);
 
     var element = document.getElementById('dicomImage');
     // var imageId = 'wadouri:http://142.76.29.57:8042/instances/4cd957bb-99c14b65-2beb9c67-9c7fd9c4-785b4dc2/file';
-    var imageId = 'example://heart'
+    var imageId = 'wadouri:./image2.dcm'
 
     const keyCodes = {
         SHIFT: 16,
