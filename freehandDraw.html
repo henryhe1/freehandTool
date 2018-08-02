@@ -39,7 +39,7 @@
             <ul class="list-group">
                 <a id="sculptTool" class="list-group-item">Sculpt Tool</a>
                 <a id="drawTool" class="list-group-item active">Draw Tool</a>
-                <a id="deactivate" class="list-group-item">Deactivate</a>
+                <a id="deactivate" class="list-group-item">Zoom/Pan/WWWC</a>
             </ul>
             <br>
             <ul class="list-group">
@@ -82,6 +82,7 @@
         </div>
 
     </div>
+    
 </div>
 
 
@@ -93,7 +94,8 @@
 
 <!-- include the cornerstone tools library -->
 <script src="./freehandDraw_files/cornerstoneTools.js"></script>
-<script>window.cornerstoneTools || document.write('<script src="https://unpkg.com/cornerstone-tools">\x3C/script>')</script><script src="./freehandDraw_files/cornerstone-tools"></script>
+<script>window.cornerstoneTools || document.write('<script src="https://unpkg.com/cornerstone-tools">\x3C/script>')</script>
+<script src="./freehandDraw_files/cornerstone-tools"></script>
 
 <script src="./freehand.js"></script>
 <script src="./freehandSculpter.js"></script>
@@ -134,6 +136,7 @@
     window.cornerstoneWADOImageLoader.webWorkerManager.initialize(WADOconfig);
 
     var element = document.getElementById('dicomImage');
+
     // var imageId = 'wadouri:http://142.76.29.57:8042/instances/4cd957bb-99c14b65-2beb9c67-9c7fd9c4-785b4dc2/file';
     var imageId = 'wadouri:./image2.dcm'
 
@@ -148,6 +151,14 @@
       shift: false,
       alt: false
     };
+
+    var zoomConfig = {
+        minScale: 0.25,
+        maxScale: 20.0,
+        preventZoonOutsideImage: true
+    };
+
+    cornerstoneTools.zoom.setConfiguration(config);
 
     //UPLOAD JSON
     function uploadJSON(){
@@ -168,8 +179,10 @@
             // Note that this only works on ImageId-specific tool state managers (for now)
             toolStateManager.clear(element);
             cornerstone.updateImage(element);
-
-            cornerstoneTools.addToolState(element, 'freehand', result);
+            console.log(result.data.length)
+            for(i=0; i<result.data.length; i++) {
+                cornerstoneTools.addToolState(element, 'freehand', result.data[i]);
+            }
         }
         
         fr.readAsText(files.item(0));
@@ -178,8 +191,10 @@
     function downloadJSON(){
         // DOWNLOAD JSON
         var ROIData = cornerstoneTools.getToolState(element, 'freehand');
+        
+        console.log(ROIData)
 
-        downloadObjectAsJson(ROIData.data[0], "data");
+        downloadObjectAsJson(ROIData, "data");
 
     }
 
@@ -262,17 +277,14 @@
     cornerstone.enable(element);
     cornerstoneTools.keyboardInput.enable(element);
     cornerstoneTools.mouseInput.enable(element);
+    cornerstoneTools.mouseWheelInput.enable(element);
+
     cornerstone.loadImage(imageId).then(function(image) {
         cornerstone.displayImage(element, image);
-
-        // Enable all tools we want to use with this element
-        cornerstoneTools.freehand.activate(element, 1);
-        cornerstoneTools.freehandSculpter.activate(element, 1);
 
         cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
 
         activate("drawTool");
-        cornerstoneTools.freehandSculpter.disable(element);
         cornerstoneTools.freehand.enable(element);
         cornerstoneTools.freehand.activate(element,1);
         element.focus();
@@ -346,6 +358,11 @@
             activate("deactivate");
             cornerstoneTools.freehand.disable(element, 1);
             cornerstoneTools.freehandSculpter.disable(element,1);
+        
+            cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
+            cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
+            cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
+            
             element.focus();
             return false;
         });
@@ -371,41 +388,7 @@
 
     function getExampleRoi1() {
       const exampleRoiJSON =
-      '{"visible":true,"active":false,"invalidated":true,"handles":[{"x":158.25,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":153.25,"y":91.19999694824219}]},'
-      + '{"x":153.25,"y":91.19999694824219,"highlight":true,"active":false,"lines":[{"x":147,"y":92.19999694824219}]},'
-      + '{"x":147,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":141.5,"y":94.69999694824219}]},'
-      + '{"x":141.5,"y":94.69999694824219,"highlight":true,"active":false,"lines":[{"x":135.5,"y":99.69999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":104.19999694824219}]}]},'
-      + '{"x":135.5,"y":99.69999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":104.19999694824219}]},'
-      + '{"x":133.75,"y":104.19999694824219,"highlight":true,"active":false,"lines":[{"x":131.75,"y":109.19999694824219}]},'
-      + '{"x":131.75,"y":109.19999694824219,"highlight":true,"active":true,"lines":[{"x":130.75,"y":114.19999694824219}]},'
-      + '{"x":130.75,"y":114.19999694824219,"highlight":true,"active":false,"lines":[{"x":130.75,"y":119.19999694824219}]},'
-      + '{"x":130.75,"y":119.19999694824219,"highlight":true,"active":false,"lines":[{"x":131.25,"y":124.19999694824219}]},'
-      + '{"x":131.25,"y":124.19999694824219,"highlight":true,"active":false,"lines":[{"x":133.75,"y":128.6999969482422}]},'
-      + '{"x":133.75,"y":128.6999969482422,"highlight":true,"active":false,"lines":[{"x":136.25,"y":133.1999969482422}]},'
-      + '{"x":136.25,"y":133.1999969482422,"highlight":true,"active":false,"lines":[{"x":138.75,"y":137.6999969482422}]},'
-      + '{"x":138.75,"y":137.6999969482422,"highlight":true,"active":false,"lines":[{"x":142.75,"y":141.6999969482422}]},'
-      + '{"x":142.75,"y":141.6999969482422,"highlight":true,"active":false,"lines":[{"x":146.75,"y":145.1999969482422}]},'
-      + '{"x":146.75,"y":145.1999969482422,"highlight":true,"active":false,"lines":[{"x":151.5,"y":147.1999969482422}]},'
-      + '{"x":151.5,"y":147.1999969482422,"highlight":true,"active":false,"lines":[{"x":157,"y":146.6999969482422}]},'
-      + '{"x":157,"y":146.6999969482422,"highlight":true,"active":false,"lines":[{"x":160.75,"y":145.6999969482422}]},'
-      + '{"x":160.75,"y":145.6999969482422,"highlight":true,"active":false,"lines":[{"x":164.25,"y":141.6999969482422}]},'
-      + '{"x":164.25,"y":141.6999969482422,"highlight":true,"active":false,"lines":[{"x":167.25,"y":137.6999969482422}]},'
-      + '{"x":167.25,"y":137.6999969482422,"highlight":true,"active":false,"lines":[{"x":169.75,"y":132.6999969482422}]},'
-      + '{"x":169.75,"y":132.6999969482422,"highlight":true,"active":false,"lines":[{"x":172.25,"y":128.1999969482422}]},'
-      + '{"x":172.25,"y":128.1999969482422,"highlight":true,"active":false,"lines":[{"x":174.75,"y":123.69999694824219}]},'
-      + '{"x":174.75,"y":123.69999694824219,"highlight":true,"active":false,"lines":[{"x":176.25,"y":118.69999694824219}]},'
-      + '{"x":176.25,"y":118.69999694824219,"highlight":true,"active":false,"lines":[{"x":176.25,"y":113.69999694824219}]},'
-      + '{"x":176.25,"y":113.69999694824219,"highlight":true,"active":false,"lines":[{"x":174.25,"y":108.69999694824219}]},'
-      + '{"x":174.25,"y":108.69999694824219,"highlight":true,"active":false,"lines":[{"x":172.25,"y":103.69999694824219}]},'
-      + '{"x":172.25,"y":103.69999694824219,"highlight":true,"active":false,"lines":[{"x":169.75,"y":99.19999694824219}]},'
-      + '{"x":169.75,"y":99.19999694824219,"highlight":true,"active":false,"lines":[{"x":168,"y":95.69999694824219}]},'
-      + '{"x":168,"y":95.69999694824219,"highlight":true,"active":false,"lines":[{"x":163.5,"y":92.69999694824219}]},'
-      + '{"x":163.5,"y":92.69999694824219,"highlight":true,"active":false,"lines":[{"x":158.25,"y":92.19999694824219,"highlight":true,"active":false,"lines":[{"x":153.25,"y":91.19999694824219}]}]}],'
-      + '"textBox":{"active":false,"hasMoved":false,"movesIndependently":false,"drawnIndependently":true,"allowedOutsideImage":true,"hasBoundingBox":true,"x":176.25,"y":124.7249984741211,'
-      + '"boundingBox":{"width":142.5,"height":65,"left":352.5,"top":216.9499969482422}},"canComplete":false,"highlight":false,'
-      + '"polyBoundingBox":{"left":130.75,"top":91.19999694824219,"width":45.5,"height":67.05000305175781},'
-      + '"meanStdDev":{"count":1856,"mean":148.21713362068965,"variance":568.0859348873164,"stdDev":23.834553381326792},"area":1540.7742500305176}';
-
+      '{"visible":true,"active":false,"invalidated":false,"handles":[{"x":253.68273952773012,"y":211.66280069442706,"highlight":true,"active":false,"lines":[{"x":258.79108133217795,"y":212.3439129350201}]},{"x":258.79108133217795,"y":212.3439129350201,"highlight":true,"active":false,"lines":[{"x":263.89942313662584,"y":211.32224457413054}]},{"x":263.89942313662584,"y":211.32224457413054,"highlight":true,"active":false,"lines":[{"x":269.0077649410737,"y":212.3439129350201}]},{"x":269.0077649410737,"y":212.3439129350201,"highlight":true,"active":false,"lines":[{"x":273.43499450492845,"y":214.72780577709574}]},{"x":273.43499450492845,"y":214.72780577709574,"highlight":true,"active":false,"lines":[{"x":278.5433363093763,"y":216.09003025828184}]},{"x":278.5433363093763,"y":216.09003025828184,"highlight":true,"active":false,"lines":[{"x":282.6300097529346,"y":219.15503534095055}]},{"x":282.6300097529346,"y":219.15503534095055,"highlight":true,"active":false,"lines":[{"x":287.3977954370859,"y":221.19837206272967}]},{"x":287.3977954370859,"y":221.19837206272967,"highlight":true,"active":false,"lines":[{"x":292.1655811212372,"y":222.9011526642123}]},{"x":292.1655811212372,"y":222.9011526642123,"highlight":true,"active":false,"lines":[{"x":296.25225456479546,"y":225.966157746881}]},{"x":296.25225456479546,"y":225.966157746881,"highlight":true,"active":false,"lines":[{"x":299.3172596474642,"y":230.0528311904393}]},{"x":299.3172596474642,"y":230.0528311904393,"highlight":true,"active":false,"lines":[{"x":301.7011524895398,"y":234.48006075429407}]},{"x":301.7011524895398,"y":234.48006075429407,"highlight":true,"active":false,"lines":[{"x":305.4472698128016,"y":238.22617807755583}]},{"x":305.4472698128016,"y":238.22617807755583,"highlight":true,"active":false,"lines":[{"x":307.4906065345807,"y":242.99396376170716}]},{"x":307.4906065345807,"y":242.99396376170716,"highlight":true,"active":false,"lines":[{"x":309.53394325635986,"y":247.76174944585847}]},{"x":309.53394325635986,"y":247.76174944585847,"highlight":true,"active":false,"lines":[{"x":310.2150554969529,"y":252.8700912503063}]},{"x":310.2150554969529,"y":252.8700912503063,"highlight":true,"active":false,"lines":[{"x":310.2150554969529,"y":257.97843305475413}]},{"x":310.2150554969529,"y":257.97843305475413,"highlight":true,"active":false,"lines":[{"x":307.8311626548773,"y":262.74621873890544}]},{"x":307.8311626548773,"y":262.74621873890544,"highlight":true,"active":false,"lines":[{"x":304.76615757220856,"y":266.83289218246375}]},{"x":304.76615757220856,"y":266.83289218246375,"highlight":true,"active":false,"lines":[{"x":301.7011524895398,"y":270.919565626022}]},{"x":301.7011524895398,"y":270.919565626022,"highlight":true,"active":false,"lines":[{"x":298.63614740687115,"y":275.6873513101733}]},{"x":298.63614740687115,"y":275.6873513101733,"highlight":true,"active":false,"lines":[{"x":294.54947396331283,"y":279.0929125131386}]},{"x":294.54947396331283,"y":279.0929125131386,"highlight":true,"active":false,"lines":[{"x":290.4628005197546,"y":282.49847371610383}]},{"x":290.4628005197546,"y":282.49847371610383,"highlight":true,"active":false,"lines":[{"x":285.35445871530675,"y":284.2012543175864}]},{"x":285.35445871530675,"y":284.2012543175864,"highlight":true,"active":false,"lines":[{"x":280.2461169108589,"y":286.24459103936556}]},{"x":280.2461169108589,"y":286.24459103936556,"highlight":true,"active":false,"lines":[{"x":275.1377751064111,"y":287.60681552055166}]},{"x":275.1377751064111,"y":287.60681552055166,"highlight":true,"active":false,"lines":[{"x":270.71054554255625,"y":290.67182060322034}]},{"x":270.71054554255625,"y":290.67182060322034,"highlight":true,"active":false,"lines":[{"x":265.6022037381084,"y":292.03404508440644}]},{"x":265.6022037381084,"y":292.03404508440644,"highlight":true,"active":false,"lines":[{"x":260.4938619336606,"y":293.055713445296}]},{"x":260.4938619336606,"y":293.055713445296,"highlight":true,"active":false,"lines":[{"x":255.04496400891622,"y":294.0773818061856}]},{"x":255.04496400891622,"y":294.0773818061856,"highlight":true,"active":false,"lines":[{"x":249.9366222044684,"y":294.41793792648207}]},{"x":249.9366222044684,"y":294.41793792648207,"highlight":true,"active":false,"lines":[{"x":244.487724279724,"y":294.0773818061856}]},{"x":244.487724279724,"y":294.0773818061856,"highlight":true,"active":false,"lines":[{"x":239.7199385955727,"y":292.03404508440644}]},{"x":239.7199385955727,"y":292.03404508440644,"highlight":true,"active":false,"lines":[{"x":234.61159679112484,"y":290.67182060322034}]},{"x":234.61159679112484,"y":290.67182060322034,"highlight":true,"active":false,"lines":[{"x":229.84381110697353,"y":288.2879277611447}]},{"x":229.84381110697353,"y":288.2879277611447,"highlight":true,"active":false,"lines":[{"x":226.09769378371178,"y":284.54181043788293}]},{"x":226.09769378371178,"y":284.54181043788293,"highlight":true,"active":false,"lines":[{"x":223.71380094163612,"y":280.11458087402815}]},{"x":223.71380094163612,"y":280.11458087402815,"highlight":true,"active":false,"lines":[{"x":221.67046421985697,"y":275.34679518987684}]},{"x":221.67046421985697,"y":275.34679518987684,"highlight":true,"active":false,"lines":[{"x":219.2865713777813,"y":270.23845338542895}]},{"x":219.2865713777813,"y":270.23845338542895,"highlight":true,"active":false,"lines":[{"x":216.2215662951126,"y":266.1517799418707}]},{"x":216.2215662951126,"y":266.1517799418707,"highlight":true,"active":false,"lines":[{"x":214.85934181392653,"y":260.70288201712634}]},{"x":214.85934181392653,"y":260.70288201712634,"highlight":true,"active":false,"lines":[{"x":214.85934181392653,"y":255.5945402126785}]},{"x":214.85934181392653,"y":255.5945402126785,"highlight":true,"active":false,"lines":[{"x":214.51878569363,"y":250.48619840823065}]},{"x":214.51878569363,"y":250.48619840823065,"highlight":true,"active":false,"lines":[{"x":215.54045405451956,"y":245.3778566037828}]},{"x":215.54045405451956,"y":245.3778566037828,"highlight":true,"active":false,"lines":[{"x":216.56212241540914,"y":240.26951479933496}]},{"x":216.56212241540914,"y":240.26951479933496,"highlight":true,"active":false,"lines":[{"x":217.92434689659524,"y":235.16117299488712}]},{"x":217.92434689659524,"y":235.16117299488712,"highlight":true,"active":false,"lines":[{"x":219.96768361837437,"y":230.39338731073582}]},{"x":219.96768361837437,"y":230.39338731073582,"highlight":true,"active":false,"lines":[{"x":222.69213258074655,"y":225.966157746881}]},{"x":222.69213258074655,"y":225.966157746881,"highlight":true,"active":false,"lines":[{"x":226.09769378371178,"y":222.22004042361925}]},{"x":226.09769378371178,"y":222.22004042361925,"highlight":true,"active":false,"lines":[{"x":230.52492334756658,"y":219.15503534095055}]},{"x":230.52492334756658,"y":219.15503534095055,"highlight":true,"active":false,"lines":[{"x":236.31437739260747,"y":216.43058637857837}]},{"x":236.31437739260747,"y":216.43058637857837,"highlight":true,"active":false,"lines":[{"x":241.08216307675877,"y":214.72780577709574}]},{"x":241.08216307675877,"y":214.72780577709574,"highlight":true,"active":false,"lines":[{"x":246.1905048812066,"y":213.7061374162062}]},{"x":246.1905048812066,"y":213.7061374162062,"highlight":true,"active":false,"lines":[{"x":253.68273952773012,"y":211.66280069442706,"highlight":true,"active":false,"lines":[{"x":258.79108133217795,"y":212.3439129350201}]}]}],"textBox":{"active":false,"hasMoved":true,"movesIndependently":false,"drawnIndependently":true,"allowedOutsideImage":true,"hasBoundingBox":true,"x":303.744489211319,"y":306.3374021368604,"boundingBox":{"width":98.3740234375,"height":65,"left":373,"top":350.5000000000001}},"canComplete":false,"highlight":false,"polyBoundingBox":{"left":214.51878569363,"top":211.32224457413054,"width":95.6962698033229,"height":83.09569335235153},"meanStdDev":{"count":5411,"mean":187.77693587137313,"variance":13391.035993641977,"stdDev":115.71964394017974},"area":3700.508222653122}';
       return JSON.parse(exampleRoiJSON);
     }
 
