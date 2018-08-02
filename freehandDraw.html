@@ -300,6 +300,9 @@
         // Tool button event handlers that set the new active tool
         document.getElementById('sculptTool').addEventListener('click', function() {
             activate("sculptTool");
+            cornerstoneTools.wwwc.disable(element, 1); // ww/wc is the default tool for left mouse button
+            cornerstoneTools.pan.disable(element, 2); // pan is the default tool for middle mouse button
+            cornerstoneTools.zoom.disable(element, 4); // zoom is the default tool for right mouse button
             cornerstoneTools.freehand.disable(element);
             cornerstoneTools.freehandSculpter.enable(element);
             cornerstoneTools.freehandSculpter.activate(element, 1);
@@ -382,7 +385,7 @@
             // Note that this only works on ImageId-specific tool state managers (for now)
             toolStateManager.clear(element);
             cornerstone.updateImage(element);
-            cornerstoneTools.addToolState(element, 'freehand', getExampleRoi1());
+            getExampleRoi1(element);
             element.focus();
         });
 
