@@ -45,6 +45,7 @@
             <ul class="list-group">
                 <a id="clearToolData" class="list-group-item">Clear drawing</a>
                 <a id="resetData" class="list-group-item">Reset data</a>
+                <a id="undoLast" class="list-group-item">Undo</a>
             </ul>
             <ul class="col-xs-12 col-sm-2">
                 <div id="keyPressed">Holding:</div>
@@ -377,6 +378,22 @@
             // Note that this only works on ImageId-specific tool state managers (for now)
             toolStateManager.clear(element);
             cornerstone.updateImage(element);
+            element.focus();
+        });
+
+        document.getElementById('undoLast').addEventListener('click', function() {
+            var ROIData = cornerstoneTools.getToolState(element, 'freehand');
+            ROIData.data.splice(-1);
+
+
+            var toolStateManager = cornerstoneTools.getElementToolStateManager(element);
+            toolStateManager.clear(element);
+            cornerstone.updateImage(element);
+
+            for(i=0; i<ROIData.data.length; i++) {
+                cornerstoneTools.addToolState(element, 'freehand', ROIData.data[i]);
+            }
+            
             element.focus();
         });
 
