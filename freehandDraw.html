@@ -141,7 +141,7 @@
     var element = document.getElementById('dicomImage');
 
     // var imageId = 'wadouri:http://142.76.29.57:8042/instances/4cd957bb-99c14b65-2beb9c67-9c7fd9c4-785b4dc2/file';
-    var imageId = 'wadouri:./image2.dcm'
+    var imageId = 'wadouri:E3188S11_map1.MR.dcm'
 
     const keyCodes = {
         SHIFT: 16,
@@ -264,6 +264,7 @@
 
       document.getElementById('keyPressed').textContent = "Holding:" + keyName;
     }
+
 
     element.tabIndex = 0;
     element.focus();
@@ -410,7 +411,7 @@
 
     function getExampleRoi1(element) {
       
-      $.getJSON('defaultHeartSeg.json', function(result){
+      $.getJSON('basalSeg.json', function(result){
         for(i=0; i<result.data.length; i++) {
             cornerstoneTools.addToolState(element, 'freehand', result.data[i]);
         }
